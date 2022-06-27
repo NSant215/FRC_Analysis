@@ -5,7 +5,6 @@ import numpy as np
 ## always the convention: 
 # N datapoints and M variables
 
-
 params = ['FRC','Dose','Conductivity','Temperature','pH','DO','Turbidity','ORP']
 
 
@@ -132,7 +131,6 @@ def excluded_vars(parameters):
         drop_vars.remove(param)
     
     return drop_vars
-
 
 def eig_decomposition(evals, evecs, X0, X, printing = True):
     '''Print eigenvectors with corresponding eigenvalues along with
