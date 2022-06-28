@@ -29,14 +29,15 @@ def fetch_data(included_sets):
         datasets[set] = data
     return datasets
 
-def normalise(x):
+def normalise(x, return_params = False):
     '''Normalise data for each variable. Calculate the mean and standard deviation 
     and scale the data to set the mean to 0 and standard deviation to 1.
     
     Inputs:
-        x       (N x M) array   N datapoints and M variables
+        x               (N x M) array   N datapoints and M variables
+        return_params   bool            return if we want to maintain the mean and sd.
     
-    Returns the normalised x.'''
+    Returns the normalised x (and mean and sd).'''
 
     num_datapoints, num_vars = x.shape # obtain the number of rows and columns
 
@@ -54,7 +55,21 @@ def normalise(x):
     ss = np.array([tmp if tmp != 0 else 1 for tmp in sd]) # if the standard deviation is zero, replace it with 1
                                                        # to avoid division by zero error
     x00 = x0 / ss[np.newaxis,:]    # divide each element by the corresponding standard deviation
-    return x00                   # return the normalised data matrix
+    if return_params:
+        return x00,m,ss
+    return x00     # return the normalised data matrix
+
+def scaling(x,m,ss):
+    '''Scale input data by given mean and standard deviation to normalise it.
+    
+    Inputs:
+        x       (N x M) array   N datapoints and M variables
+    Returns the changed x.'''
+
+    # print(m)
+    x0 = x - m[np.newaxis,:] # subtract the mean from each element
+    x00 = x0 / ss[np.newaxis,:]    # divide each element by the corresponding standard deviation
+    return x00                     # return the normalised data matrix
 
 def plot_2d(datasets, x_var, y_var, ax):
     '''Create a scatter plot of datapoints from the chosen datasets for the chosen 2 variables.
