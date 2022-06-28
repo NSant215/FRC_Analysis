@@ -175,3 +175,47 @@ def eig_decomposition(evals, evecs, X0, X, printing = True):
     best_val = max(correlations)
     best_index = correlations.index(best_val)
     return best_index + 1, best_val
+
+
+def form_data_LDA(chosen_sets, dimension, parameters, FRC_groups):
+    '''Fetch the data from files and format it to be processed in LDA analysis.
+
+    Inputs:
+        chosen_sets:    [str]       a list of the water sources to include in this run.
+        dimension:      int         the number of variables we are including
+        parameters:     [str]       the variables to include
+        FRC_groups:     [[float]]   a list of length-2 vectors containing the lower and 
+                                    upper bounds of each 'class' we are defining
+    
+    Returns:
+        X_prime:    (N x M') array      unnormalised array including the FRC column
+        X:          (N x M) array       N = number of datapoints, M = number of variables.
+        y:          (M x 1) array       labels for each datapoint
+        FRC:        (M x 1) array       FRC of each datapoint
+    
+    '''
+    datasets = fetch_data(chosen_sets)
+
+    df = pd.DataFrame()
+    for set in datasets:
+        new = datasets[set][datasets[set][parameters[0]] > -1]
+        for i in range(1,dimension):
+            new = new[new[parameters[i]] > -1]
+        df = pd.concat([df, new])
+    
+    drop_vars = excluded_vars(parameters)
+    df = df.drop(drop_vars, axis = 1)
+
+    X_prime = df.to_numpy()
+
+    X = X_prime[:, 1:]
+    FRC = X_prime[:, 0].flatten()
+    y = FRC.copy()
+
+    for index, group in enumerate(FRC_groups):
+        bottom = group[0]
+        top = group[1]
+        np.place(y, y<top, index+10)
+    y -= 10
+
+    return X_prime, X, y, FRC
