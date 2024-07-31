@@ -1,12 +1,10 @@
 import pandas as pd
 import numpy as np
 
-
 ## always the convention: 
 # N datapoints and M variables
 
 params = ['FRC','Dose','Conductivity','Temperature','pH','DO','Turbidity','ORP']
-
 
 # Sets of files to use in analysis
 all_files = ['Distilled', 'Tap', 'MC_1', 'MC_2', 'Pond', 'Pool', 'JL', 'Kenya_Ivonangya_1', 'Kenya_jerry_cans', 'Kenya_Ivonangya_2', 'Kenya_Mumo_1', 'Kenya_Mumo_2', 'Kenya_Kyuso', 'Kenya_Hostel']
@@ -39,19 +37,13 @@ def normalise(x, return_params = False):
     
     Returns the normalised x (and mean and sd).'''
 
-    num_datapoints, num_vars = x.shape # obtain the number of rows and columns
-
-    # print("Number of Datapoints: {} \nNumber of Variables: {}".format(num_datapoints, num_vars))
+    num_datapoints, _ = x.shape # obtain the number of rows and columns
 
     m = x.sum(axis=0)/num_datapoints     # compute the mean along each column and collect into a vector
-
-    # print(m)
     x0 = x - m[np.newaxis,:] # subtract the mean from each element
                             # the "np.newaxis" construct creates identical rows from the same mean value
 
     sd = np.sqrt((x0**2).sum(axis=0)/num_datapoints) # now compute the standard deviation of each column
-    # print(x0)
-    # print(sd)
     ss = np.array([tmp if tmp != 0 else 1 for tmp in sd]) # if the standard deviation is zero, replace it with 1
                                                        # to avoid division by zero error
     x00 = x0 / ss[np.newaxis,:]    # divide each element by the corresponding standard deviation
@@ -65,8 +57,6 @@ def scaling(x,m,ss):
     Inputs:
         x       (N x M) array   N datapoints and M variables
     Returns the changed x.'''
-
-    # print(m)
     x0 = x - m[np.newaxis,:] # subtract the mean from each element
     x00 = x0 / ss[np.newaxis,:]    # divide each element by the corresponding standard deviation
     return x00                     # return the normalised data matrix
